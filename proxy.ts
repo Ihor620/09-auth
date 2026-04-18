@@ -12,6 +12,7 @@ export async function middleware(request: NextRequest) {
   const refreshToken = cookieStore.get("refreshToken")?.value;
 
   let isAuthenticated = !!accessToken;
+  let response = NextResponse.next();
 
   if (!accessToken && refreshToken) {
     try {
@@ -21,8 +22,30 @@ export async function middleware(request: NextRequest) {
           Cookie: `refreshToken=${refreshToken}`,
         },
       });
-      const data = await res.json();
-      isAuthenticated = data?.success === true;
+
+      const setCookie = res.headers.get("set-cookie");
+      if (setCookie && res.ok) {
+        const data = await res.json();
+        isAuthenticated = data?.success === true;
+
+        if (isAuthenticated) {
+          response = NextResponse.next();
+          const cookieArray = setCookie.split(",");
+          for (const cookieStr of cookieArray) {
+            const [nameValue] = cookieStr.trim().split(";");
+            const [name, value] = nameValue.split("=");
+            if (name && value) {
+              response.cookies.set(name.trim(), value.trim(), {
+                httpOnly: true,
+                path: "/",
+              });
+            }
+          }
+        }
+      } else {
+        const data = await res.json();
+        isAuthenticated = data?.success === true;
+      }
     } catch {
       isAuthenticated = false;
     }
@@ -41,7 +64,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/profile", request.url));
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
