@@ -52,14 +52,11 @@ export const getMe = async (): Promise<User> => {
   return data;
 };
 
-export const checkSession = async (): Promise<boolean> => {
+export const checkSession = async () => {
   const cookieHeader = await getCookieHeader();
-  const { data } = await axios.get<{ success: boolean }>(
-    `${baseURL}/auth/session`,
-    {
-      headers: { Cookie: cookieHeader },
-      withCredentials: true,
-    }
-  );
-  return data?.success === true;
+  const response = await axios.get(`${baseURL}/auth/session`, {
+    headers: { Cookie: cookieHeader },
+    withCredentials: true,
+  });
+  return response;
 };

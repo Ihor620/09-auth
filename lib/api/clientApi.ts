@@ -83,7 +83,7 @@ export const getMe = async (): Promise<User> => {
   return data;
 };
 
-export const updateMe = async (updates: Partial<User>): Promise<User> => {
+export const updateMe = async (updates: { username: string }): Promise<User> => {
   const { data } = await instance.patch<User>("/users/me", updates);
   return data;
 };
