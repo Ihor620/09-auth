@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 const PRIVATE_ROUTES = ["/profile", "/notes"];
 const AUTH_ROUTES = ["/sign-in", "/sign-up"];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const cookieStore = await cookies();
@@ -66,6 +66,8 @@ export async function middleware(request: NextRequest) {
 
   return response;
 }
+
+export default proxy;
 
 export const config = {
   matcher: [
